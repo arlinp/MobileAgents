@@ -14,3 +14,5 @@ location, or fire location.
 ### Completed
 
 ### Todo
+-Finish message queue.
+-Fix walking of agents so they stop when they have already explored the graph entirely at first.
