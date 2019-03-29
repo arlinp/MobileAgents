@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Node implements Runnable{
 
     private String name;
+    private String state;
     private Point2D location;
     private Agent agent = null;
     private Boolean isStation;
@@ -57,20 +58,18 @@ public class Node implements Runnable{
         }
     }
 
-    // Move the agents
+    // Perform a random walk to find fire
     synchronized public void moveAgent(){
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
         if(neighbor.agent == null){
-            if(neighbor.setAgent(this.agent)&&this.agent.setNode(neighbor)){
-                this.agent = null;
-                if(isOnFire){
-                    this.agent.foundFire();
-                    System.out.println("FIRE FOUND");
-                }
+            if(neighbor.isOnFire){
+                System.out.println("FIRE FOUND");
+                agent.foundFire();
+
+                // todo: send the message that Fire was found
             }
-        } else {
-            if(this.agent != null) {
-                moveAgent();
+            else if(neighbor.setAgent(this.agent)&&this.agent.setNode(neighbor)){
+                this.agent = null;
             }
         }
     }

@@ -12,15 +12,22 @@ public class Agent implements Runnable, Cloneable{
     private String ID;
     private String ChildID;
 
+    //Default Constructor not used
     public Agent(){
         //base case just makes empty agent
         this.node = null;
         this.ID = "A";
         // Todo: addMessage("report");
     }
+
     public Agent(Node newNode){
         this.node = newNode;
-        this.ID = "B";
+        //named after node's X,Y position
+        String number = Integer.toString((int)newNode.getLocation().getX());
+        number += Integer.toString((int)newNode.getLocation().getY());
+
+        this.ID = number;
+        System.out.println("Agent " + ID + "created");
     }
     public Agent(Node newNode, String name){
         this.node = newNode;
@@ -33,13 +40,11 @@ public class Agent implements Runnable, Cloneable{
             if (!fireFound) {
                 node.moveAgent();
                 // todo: report new location to base once
-                node.addMessage("moveAgent " + this.ID);
-                node.addMessage("The agent has received the move");
 
             } else {
 
                 // todo: clone the agent into nearby nodes
-                System.out.println("AGENT HAS NOW STOPPED ------");
+                System.out.println("TEST FOR POINT ------");
 
             }
             try {

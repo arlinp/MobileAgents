@@ -86,21 +86,13 @@ public class Controller {
     private void setNodeAsStation(Point2D location) {
         station = nodes.get(location);
         station.setStation(true);
-        createAgentOnNode(station, "A");
+        createAgentOnNode(station);
     }
 
     private void createAgentOnNode(Node agentNode){
         Agent agent = new Agent(agentNode);
         agentNode.setAgent(agent);
         Thread agentThread = new Thread(agent);
-        agentThread.start();
-    }
-
-    private void createAgentOnNode(Node agentNode, String name){
-        Agent agent = new Agent(agentNode, name);
-        agentNode.setAgent(agent);
-        Thread agentThread = new Thread(agent);
-        //old thread start
         agentThread.start();
     }
 
