@@ -2,7 +2,7 @@ package Project4;
 /**
  * Class to create and manipulate a sensor node for the network
  *
- * @authors Arlin Pedregon, Justin Lusby
+ * @authors A. Pedregon, J. Lusby
  * @date 03/24/19
  * @version 1.0
  */
