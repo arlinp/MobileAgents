@@ -1,41 +1,34 @@
 package Project4;
-
+/**
+ * Main class / entry point for the program.  Sets up the scene
+ * and starts the animation timer
+ *
+ * @authors A. Pedregon, J. Lusby
+ * @date 03/24/19
+ * @version 1.0
+ */
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import java.nio.file.Paths;
-import java.util.Hashtable;
-
 
 public class Main extends Application {
 
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
+        new Controller().readGraph();
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        Text text = new Text("Hello World!");
+    public void start(Stage primaryStage) throws Exception{
+        primaryStage.setTitle("Mobile Agents");
         Controller controller = new Controller();
-        controller.processGraph(Paths.get("src/Project4/MediumGraph.txt"));
-
-        Hashtable myHashtable = controller.getNodes();
-
-//        GraphDisplay graphic = new GraphDisplay();
-//        graphic.setSize(400, 300);
-//        graphic.setVisible(true);
-//
-//        Group root = new Group();
-//        //root.getChildren().addAll(graphic);
-//        Scene scene = new Scene(root, 700, 700);
-//                // Add root to stage
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
+        controller.readGraph();
+        Group root = new Group(new GraphDisplay().createGraph());
+        Scene scene = new Scene(root, GraphDisplay.displayWidth, GraphDisplay.displayHeight);
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
         AnimationTimer a = new AnimationTimer() {
             @Override
@@ -50,5 +43,4 @@ public class Main extends Application {
         };
         a.start();
     }
-
 }
