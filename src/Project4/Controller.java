@@ -28,7 +28,7 @@ public class Controller {
      * @throws Exception : if file not found
      */
     public void readGraph() throws Exception{
-        File file = new File("src/sample.txt");
+        File file = new File("src/MediumGraph.txt");
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st;
 
