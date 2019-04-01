@@ -56,7 +56,7 @@ public class Agent implements Runnable, Cloneable{
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                System.out.println("Interupted: " + e);
+                System.out.println("Interrupted: " + e);
             }
         }
     }

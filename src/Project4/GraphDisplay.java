@@ -56,7 +56,7 @@ public class GraphDisplay {
      */
     public void createNode(int x, int y, Color color){
         Circle circle = new Circle(15, color);
-        circle.relocate(x*80, y*80);
+        circle.relocate((x*80)+100, (y*80)+100 );
         display.getChildren().add(circle);
     }
 
@@ -69,7 +69,7 @@ public class GraphDisplay {
         int startY = 15 + edge.getStartY() * 80;
         int endX = 15 + edge.getEndX() * 80;
         int endY = 15 + edge.getEndY() * 80;
-        Line line = new Line(startX, startY, endX, endY);
+        Line line = new Line(startX+100, startY+100, endX+100, endY+100);
         line.setStroke(Color.WHITE);
         display.getChildren().add(line);
     }
