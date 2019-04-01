@@ -12,7 +12,11 @@ Program reads an input text file that describes a sensor network and stores netw
 location, or fire location.
 
 ### Completed
+Reads in a configuration file and displays a GUI containing the indicated graph.  Nodes are connected with lines and node color indicates the node state.  Agent and Node threads are initialized and 
+started.  Initial configuration contains a single agent that walks the graph searching for a node on fire.  If a fire found a message is printed to standard out.
 
 ### Todo
 -Finish message queue.
 -Fix walking of agents so they stop when they have already explored the graph entirely at first.
+-Fix configuration file reading to accept node location values larger than a single digit.
+-Add update functionality to GUI to display updates as the fire spreads.
