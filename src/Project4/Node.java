@@ -1,39 +1,80 @@
 package Project4;
-
-import javafx.geometry.Point2D;
-
+/**
+ * Class to create and manipulate a sensor node for the network
+ *
+ * @authors A. Pedregon, J. Lusby
+ * @date 03/24/19
+ * @version 1.0
+ */
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
-/**
- * This class creates a node and subsequently stores/sends
- * information back to the main station
- */
 public class Node implements Runnable{
-
-    private String name;
-    private String state;
-    private Point2D location;
     private Agent agent = null;
-    private Boolean isStation;
-    private Boolean isOnFire;
     private Boolean running = true;
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
     private List<Node> neighbors = new ArrayList<>();
     private Random randomNeighbor = new Random();
-    int weight = Integer.MAX_VALUE;
+    private int xValue;
+    private int yValue;
+    private boolean isStation;
+    private boolean isFire;
+    private int weight = Integer.MAX_VALUE;
 
-    public Node(Point2D locale) {
-        this.location = locale;
-        this.isStation = false;
-        this.isOnFire = false;
+    /**
+     * Constructor for a sensor node
+     * @param x : x coordinate of the node in the network
+     * @param y : y coordinate of the node in the network
+     * @param station : indicates if the node is the station
+     * @param fire : indicates if the node is on fire
+     */
+    public Node(int x, int y, boolean station, boolean fire){
+        this.xValue = x;
+        this.yValue = y;
+        this.isStation = station;
+        this.isFire = fire;
     }
-    public Node(Point2D locale, Boolean base, Boolean fire){
-        this.location = locale;
-        this.isStation = base;
-        this.isOnFire = fire;
+
+    /**
+     * Set this nodes fire to true
+     */
+    public void setFire(){
+        isFire = true;
+    }
+
+    /**
+     * Set this nodes station to true
+     */
+    public void setStation(){
+        isStation = true;
+    }
+
+    /**
+     * Get sensor station status
+     */
+    public Boolean isStation(){
+        return isStation;
+    }
+
+    /**
+     * Get sensor fire status
+     */
+    public Boolean isFire(){
+        return isFire;
+    }
+    /**
+     * Get x coordinate of this tile
+     */
+    public int getX(){
+        return xValue;
+    }
+
+    /**
+     * Get y coordinate of this tile
+     */
+    public int getY(){
+        return yValue;
     }
 
     public void run(){
@@ -52,17 +93,17 @@ public class Node implements Runnable{
     synchronized private void processMessageQueue() {
         if (!queue.isEmpty()) {
             String[] message = queue.remove().split(" ");
-//            if (message[0].equals("moveAgent")) {
-//                moveAgent();
-//            }
+            //    if (message[0].equals("moveAgent")) {
+            //        moveAgent();
+            //    }
         }
     }
 
-    // Perform a random walk to find fire
+    // Agents
     synchronized public void moveAgent(){
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
         if(neighbor.agent == null){
-            if(neighbor.isOnFire){
+            if(neighbor.isFire){
                 System.out.println("FIRE FOUND");
                 agent.foundFire();
 
@@ -73,39 +114,26 @@ public class Node implements Runnable{
             }
         }
     }
+
+
     // Nodes
     public void addNeighbor(Node neighbor){
         neighbors.add(neighbor);
     }
-    // Getters
-    public Boolean getIsStation() {
-        return isStation;
-    }
-    public Boolean getIsOnFire() {
-        return isOnFire;
-    }
+
     public int getWeight(){
         return weight;
     }
-    public Point2D getLocation() {
-        return location;
-    }
+
     public List<Node> getNeighbors() {
         return neighbors;
     }
     // Setters
-    public void setStation(Boolean isBase){
-        this.isStation = isBase;
-    }
-    public void setOnFire(boolean isBurning){
-        this.isOnFire = isBurning;
-    }
+
     public void setWeight(int newWeight){
         this.weight = newWeight;
     }
-    public void setLocation(Point2D newLocation) {
-        this.location = newLocation;
-    }
+
     protected void setNeighbors(List<Node> newNeighbors) {
         this.neighbors = newNeighbors;
     }
@@ -120,11 +148,8 @@ public class Node implements Runnable{
     // Override ToString
     @Override
     synchronized public String toString(){
-        return String.format("Node @ ("+location.getX()+", "+
-                location.getY()+") weight: "+weight+", isStation: "+isStation+", " +
-                "isOnFire" +
-                ": "+
-                isOnFire+ ", and hasAgent: "+((agent!=null)?"true":"false"));
+        return String.format("Node @ ("+ xValue + ", " + yValue + ") weight: " +
+                weight + ", isStation: " + isStation + ", " + "isOnFire" + ": " +
+                isFire + ", and hasAgent: " +((agent!=null)?"true":"false"));
     }
-
 }

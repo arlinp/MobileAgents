@@ -1,5 +1,11 @@
 package Project4;
-
+/**
+ * Class to create the a mobile agent object
+ *
+ * @authors A. Pedregon, J. Lusby
+ * @date 03/24/19
+ * @version 1.0
+ */
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -23,8 +29,8 @@ public class Agent implements Runnable, Cloneable{
     public Agent(Node newNode){
         this.node = newNode;
         //named after node's X,Y position
-        String number = Integer.toString((int)newNode.getLocation().getX());
-        number += Integer.toString((int)newNode.getLocation().getY());
+        String number = Integer.toString(newNode.getX());
+        number += Integer.toString(newNode.getY());
 
         this.ID = number;
         System.out.println("Agent " + ID + "created");
