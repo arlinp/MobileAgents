@@ -22,13 +22,14 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Mobile Agents");
-        Controller controller = new Controller();
-        controller.readGraph();
-        Group root = new Group(new GraphDisplay().createGraph());
+        GraphDisplay graph = new GraphDisplay();
+        Group root = new Group(graph.createGraph());
         Scene scene = new Scene(root, GraphDisplay.displayWidth, GraphDisplay.displayHeight);
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        new Controller().readGraph();
+        graph.setUp();
         AnimationTimer a = new AnimationTimer() {
             @Override
             public void handle(long now) {
