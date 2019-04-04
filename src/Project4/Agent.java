@@ -18,14 +18,6 @@ public class Agent implements Runnable, Cloneable{
     private String ID;
     private String ChildID;
 
-    //Default Constructor not used
-    public Agent(){
-        //base case just makes empty agent
-        this.node = null;
-        this.ID = "A";
-        // Todo: addMessage("report");
-    }
-
     /**
      * Makes a new agent,
      * assigns the node to it,
@@ -37,13 +29,8 @@ public class Agent implements Runnable, Cloneable{
         //named after node's X,Y position
         String number = Integer.toString(newNode.getX());
         number += Integer.toString(newNode.getY());
-
         this.ID = number;
-        System.out.println("Agent " + ID + " created");
-    }
-    public Agent(Node newNode, String name){
-        this.node = newNode;
-        this.ID = name;
+        GraphDisplay.createMessage(ID, newNode);
     }
 
     public void run(){
@@ -55,7 +42,7 @@ public class Agent implements Runnable, Cloneable{
 
             } else {
                 for(Node neighbor : node.getNeighbors()){
-                    if(neighbor.isFire() == false && neighbor.isYellow() == false) {
+                    if(neighbor.isFire() == false && neighbor.isNearFire() == false) {
                         cloneOn(neighbor);
                     }
                 }
@@ -81,10 +68,7 @@ public class Agent implements Runnable, Cloneable{
         }
 
     }
-
-
-
-
+    
     synchronized public void addMessage(String message) {
         queue.add(message);
     }
