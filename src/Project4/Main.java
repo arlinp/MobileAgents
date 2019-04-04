@@ -28,8 +28,9 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        new Controller(graph).readGraph();
+        new Controller().readGraph();
         graph.setUp();
+
         AnimationTimer a = new AnimationTimer() {
             @Override
             public void handle(long now) {
