@@ -6,16 +6,19 @@ package Project4;
  * @date 03/24/19
  * @version 1.0
  */
-import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
+
+import java.util.ArrayList;
 
 public class GraphDisplay {
-    private Pane display;
-    public FlowPane stationLog;
+    public static Pane display;
+    public static FlowPane stationLog;
+    public static ArrayList<Node> nodes;
     public static int displayWidth = 800;
     public static int displayHeight = 600;
 
@@ -37,12 +40,12 @@ public class GraphDisplay {
      */
     public FlowPane createStationLog(){
         stationLog = new FlowPane();
-        Label label = new Label("Base Station Log: ");
-        label.setTextFill(Color.RED);
+        Text text = new Text("Base Station Log: ");
+        text.setStroke(Color.RED);
         stationLog.setPrefWidth(displayWidth);
         stationLog.setPrefHeight(200);
         stationLog.setStyle("-fx-background-color:  #001a00;");
-        stationLog.getChildren().add(label);
+        stationLog.getChildren().add(text);
         stationLog.relocate(0, 400);
         return stationLog;
     }
@@ -55,7 +58,7 @@ public class GraphDisplay {
      */
     public void createNode(int x, int y, Color color){
         Circle circle = new Circle(15, color);
-        circle.relocate((x*80)+100, (y*80)+100 );
+        circle.relocate((x*80)+100, (y*80)+20);
         display.getChildren().add(circle);
     }
 
@@ -68,45 +71,71 @@ public class GraphDisplay {
         int startY = 15 + edge.getStartY() * 80;
         int endX = 15 + edge.getEndX() * 80;
         int endY = 15 + edge.getEndY() * 80;
-        Line line = new Line(startX+100, startY+100, endX+100, endY+100);
+        Line line = new Line(startX+100, startY+20, endX+100, endY+20);
         line.setStroke(Color.WHITE);
         display.getChildren().add(line);
+    }
+
+    /**
+     * Creates the message to be displayed on the base station log
+     * @param name : unique Agent Id name
+     * @param node : node the agent was created on
+     */
+    public static void createMessage(String name, Node node){
+        Text newLog = new Text("\tAgent: " + name +
+                " Created at (" + node.getX() + "," + node.getY() + ")\t");
+        newLog.setStroke(Color.WHITE);
+        stationLog.getChildren().add(newLog);
     }
 
     /**
      * Updates the graph
      */
     public void setUp(){
+        nodes = Controller.sensors;
         //Loop through sensor list and add nodes to display
-        for(int x  = 0; x < Controller.sensors.size(); x++){
-            Node node = Controller.sensors.get(x);
+        for(int x  = 0; x < nodes.size(); x++){
+            Node node = nodes.get(x);
             if(node.isStation()){
-                if(node.getAgent() != null){
-                    createNode(node.getX(), node.getY(), Color.YELLOW);
-                }
-                else {
-                    createNode(node.getX(), node.getY(), Color.GREEN);
-                }
+                createNode(node.getX(), node.getY(), Color.GREEN);
             }
+
             if (node.isFire()){
+                for(int i = 0; i < Controller.edges.size(); i++){
+                    if((Controller.edges.get(i).getEndX() == node.getX()) && (Controller.edges.get(i).getEndY() == node.getY())){
+                        createNode(Controller.edges.get(i).getStartX(), Controller.edges.get(i).getStartY(), Color.YELLOW);
+                        for(int y  = 0; y < nodes.size(); y++) {
+                            if(nodes.get(y).getX() == Controller.edges.get(i).getStartX() && nodes.get(y).getY() == Controller.edges.get(i).getStartY()){
+                                nodes.get(y).setNearFire();
+                            }
+                        }
+                    }
+                    if((Controller.edges.get(i).getStartX() == node.getX()) && (Controller.edges.get(i).getStartY() == node.getY())){
+                        createNode(Controller.edges.get(i).getEndX(), Controller.edges.get(i).getEndY(), Color.YELLOW);
+                        for(int y  = 0; y < nodes.size(); y++) {
+                            if(nodes.get(y).getX() == Controller.edges.get(i).getEndX() && nodes.get(y).getY() == Controller.edges.get(i).getEndY()){
+                                nodes.get(y).setNearFire();
+                            }
+                        }
+                    }
+                }
                 createNode(node.getX(), node.getY(), Color.RED);
             }
-            if(!node.isStation() && !node.isFire()){
+        }
+
+        for(int x  = 0; x < nodes.size(); x++) {
+            Node node = nodes.get(x);
+            if (!node.isStation() && !node.isFire() && !node.isNearFire()) {
                 createNode(node.getX(), node.getY(), Color.BLUE);
             }
         }
+
         //Loop through the edge list and add create lines between nodes
         for(int x = 0; x < Controller.edges.size(); x++){
             createLine(Controller.edges.get(x));
         }
     }
 
-    private void drawAgent(int x, int y) {
-        Circle c1 = new Circle(15);
-        c1.setStroke(Color.BLACK);
-        c1.setFill(null);
-        c1.setStrokeWidth(10);
-        c1.relocate((x*80)+100, (y*80)+100);
-        display.getChildren().add(c1);
+    public void update(){
     }
 }
