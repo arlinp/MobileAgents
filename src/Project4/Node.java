@@ -85,6 +85,11 @@ public class Node implements Runnable{
             processMessageQueue();
             if(this.isFire) {
                 for (Node neighbor : neighbors) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException iE) {
+                        System.out.println("ZZzzzzzz interuption: " + iE);
+                    }
                     if (neighbor.isFire == false) {
                         neighbor.isFire = true;
                     }
