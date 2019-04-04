@@ -54,8 +54,11 @@ public class Agent implements Runnable, Cloneable{
                 // todo: report new location to base once
 
             } else {
-
-                System.out.println("TEST FOR POINT ------");
+                for(Node neighbor : node.getNeighbors()){
+                    if(neighbor.isFire() == false && neighbor.isYellow() == false) {
+                        cloneOn(neighbor);
+                    }
+                }
 
             }
             try {
@@ -65,6 +68,21 @@ public class Agent implements Runnable, Cloneable{
             }
         }
     }
+
+    synchronized public void cloneOn(Node node)
+    {
+        Agent newAgent = new Agent(node);
+        node.setAgent(newAgent);
+    }
+
+    synchronized public void cloneAgent(Node node){
+        for(Node neighbor : node.getNeighbors()){
+            cloneOn(neighbor);
+        }
+
+    }
+
+
 
 
     synchronized public void addMessage(String message) {

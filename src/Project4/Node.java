@@ -21,6 +21,7 @@ public class Node implements Runnable{
     private int xValue;
     private int yValue;
     private boolean isStation;
+    private boolean isYellow;
     private boolean isFire;
     private int weight = Integer.MAX_VALUE;
 
@@ -66,6 +67,12 @@ public class Node implements Runnable{
         return isFire;
     }
     /**
+     * Get sensor fire status
+     */
+    public Boolean isYellow(){
+        return isYellow;
+    }
+    /**
      * Get x coordinate of this tile
      */
     public int getX(){
@@ -84,16 +91,12 @@ public class Node implements Runnable{
             System.out.println("Thread is running: " + this);
             processMessageQueue();
             if(this.isFire) {
-                for (Node neighbor : neighbors) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException iE) {
-                        System.out.println("ZZzzzzzz interuption: " + iE);
-                    }
-                    if (neighbor.isFire == false) {
-                        neighbor.isFire = true;
-                    }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException iE) {
+                    System.out.println("ZZzzzzzz interuption: " + iE);
                 }
+                spreadFire(this);
             }
             try {
                 Thread.sleep(1000);
@@ -117,11 +120,10 @@ public class Node implements Runnable{
     synchronized public void moveAgent(){
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
         if(neighbor.agent == null){
-            if(neighbor.isFire){
+            if(this.isFire){
                 System.out.println("FIRE FOUND");
                 // todo: send the message that Fire was found
                 agent.foundFire();
-                cloneAgent(neighbor);
 
             }
             else if(neighbor.setAgent(this.agent)&&this.agent.setNode(neighbor)){
@@ -130,12 +132,42 @@ public class Node implements Runnable{
         }
     }
 
-    synchronized public void spreadFire(){
-        for(Node neighbor : neighbors) {
-            if (neighbor.isFire == false) {
+    synchronized public void spreadFire(Node node){
+        for(Node neighbor : node.neighbors) {
+            if (neighbor.isFire == false && neighbor.isYellow == false) {
+
+                neighbor.isYellow = true;
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException iE) {
+                    System.out.println("ZZzzzzzz interuption: " + iE);
+                }
+
                 neighbor.isFire = true;
+                neighbor.isYellow = false;
             }
         }
+    }
+
+    private void waitAndLightOnFire() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException iE) {
+            System.out.println("ZZzzzzzz interuption: " + iE);
+        }
+        lightOnFireAndDestroy();
+
+    }
+
+    private void lightOnFireAndDestroy() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException iE) {
+            System.out.println("ZZzzzzzz interuption: " + iE);
+        }
+        lightOnFireAndDestroy();
+        this.isFire = true;
     }
 
     synchronized public void cloneAgent(Node node){
@@ -189,6 +221,7 @@ public class Node implements Runnable{
     synchronized public String toString(){
         return String.format("Node @ ("+ xValue + ", " + yValue + ") weight: " +
                 weight + ", isStation: " + isStation + ", " + "isOnFire" + ": " +
-                isFire + ", and hasAgent: " +((agent!=null)?"true":"false"));
+                isFire + " isYellow" + ": " +
+                isYellow + ", and hasAgent: " +((agent!=null)?"true":"false"));
     }
 }
