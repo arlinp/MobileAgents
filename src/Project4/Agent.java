@@ -26,6 +26,12 @@ public class Agent implements Runnable, Cloneable{
         // Todo: addMessage("report");
     }
 
+    /**
+     * Makes a new agent,
+     * assigns the node to it,
+     * names it after position of node
+     * @param newNode
+     */
     public Agent(Node newNode){
         this.node = newNode;
         //named after node's X,Y position
@@ -33,7 +39,7 @@ public class Agent implements Runnable, Cloneable{
         number += Integer.toString(newNode.getY());
 
         this.ID = number;
-        System.out.println("Agent " + ID + "created");
+        System.out.println("Agent " + ID + " created");
     }
     public Agent(Node newNode, String name){
         this.node = newNode;
@@ -49,7 +55,6 @@ public class Agent implements Runnable, Cloneable{
 
             } else {
 
-                // todo: clone the agent into nearby nodes
                 System.out.println("TEST FOR POINT ------");
 
             }

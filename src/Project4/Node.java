@@ -11,6 +11,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Node implements Runnable{
+
+
     private Agent agent = null;
     private Boolean running = true;
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
@@ -81,6 +83,13 @@ public class Node implements Runnable{
         while(running) {
             System.out.println("Thread is running: " + this);
             processMessageQueue();
+            if(this.isFire) {
+                for (Node neighbor : neighbors) {
+                    if (neighbor.isFire == false) {
+                        neighbor.isFire = true;
+                    }
+                }
+            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException iE) {
@@ -105,14 +114,36 @@ public class Node implements Runnable{
         if(neighbor.agent == null){
             if(neighbor.isFire){
                 System.out.println("FIRE FOUND");
-                agent.foundFire();
-
                 // todo: send the message that Fire was found
+                agent.foundFire();
+                cloneAgent(neighbor);
+
             }
             else if(neighbor.setAgent(this.agent)&&this.agent.setNode(neighbor)){
                 this.agent = null;
             }
         }
+    }
+
+    synchronized public void spreadFire(){
+        for(Node neighbor : neighbors) {
+            if (neighbor.isFire == false) {
+                neighbor.isFire = true;
+            }
+        }
+    }
+
+    synchronized public void cloneAgent(Node node){
+        for(Node neighbor : node.neighbors){
+            cloneOn(neighbor);
+        }
+
+    }
+
+    synchronized public void cloneOn(Node node)
+    {
+        Agent newAgent = new Agent(node);
+        node.setAgent(newAgent);
     }
 
 
@@ -144,6 +175,9 @@ public class Node implements Runnable{
     synchronized public Boolean setAgent(Agent newAgent){
         this.agent = newAgent;
         return (this.agent.equals(newAgent))?true:false;
+    }
+    public Agent getAgent() {
+        return this.agent;
     }
     // Override ToString
     @Override

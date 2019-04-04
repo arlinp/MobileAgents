@@ -17,9 +17,15 @@ public class Controller {
     private int stationCount = 0;
     public static ArrayList<Node> sensors = new ArrayList<>();
     public static ArrayList<Edge> edges = new ArrayList<>();
-    Hashtable<Point2D, Node> nodes = new Hashtable();
+    public static Hashtable<Point2D, Node> nodes = new Hashtable();
     Hashtable<Node, Thread> nodeThreads = new Hashtable();
     Node station = null;
+    GraphDisplay gd;
+
+    public Controller(GraphDisplay gd){
+        this.gd = gd;
+    }
+
 
     /**
      * Reads in the graph configuration file, parses the information of each line to either

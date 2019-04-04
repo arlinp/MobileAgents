@@ -27,7 +27,6 @@ public class GraphDisplay {
         display = new Pane();
         display.setPrefSize(displayWidth, 400);
         display.setStyle("-fx-background-color:  #003300;");
-        setUp();
         display.getChildren().add(createStationLog());
         return display;
     }
@@ -82,7 +81,12 @@ public class GraphDisplay {
         for(int x  = 0; x < Controller.sensors.size(); x++){
             Node node = Controller.sensors.get(x);
             if(node.isStation()){
-                createNode(node.getX(), node.getY(), Color.GREEN);
+                if(node.getAgent() != null){
+                    createNode(node.getX(), node.getY(), Color.YELLOW);
+                }
+                else {
+                    createNode(node.getX(), node.getY(), Color.GREEN);
+                }
             }
             if (node.isFire()){
                 createNode(node.getX(), node.getY(), Color.RED);
@@ -95,5 +99,14 @@ public class GraphDisplay {
         for(int x = 0; x < Controller.edges.size(); x++){
             createLine(Controller.edges.get(x));
         }
+    }
+
+    private void drawAgent(int x, int y) {
+        Circle c1 = new Circle(15);
+        c1.setStroke(Color.BLACK);
+        c1.setFill(null);
+        c1.setStrokeWidth(10);
+        c1.relocate((x*80)+100, (y*80)+100);
+        display.getChildren().add(c1);
     }
 }
