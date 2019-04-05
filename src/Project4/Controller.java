@@ -75,6 +75,7 @@ public class Controller {
                 for(int i = 0; i < sensors.size(); i++){
                     if(sensors.get(i).getX() == x && sensors.get(i).getY() == y){
                         sensors.get(i).setStation();
+                        sensors.get(i).hasAgent = true;
                         setNodeAsStation(createPoint(st.charAt(8) - 48, st.charAt(10) - 48));
                     }
                 }
