@@ -22,9 +22,6 @@ public class Controller {
     Node station = null;
     GraphDisplay gd;
 
-    public Controller(GraphDisplay gd){
-        this.gd = gd;
-    }
 
 
     /**

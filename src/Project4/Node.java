@@ -10,92 +10,93 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Node implements Runnable {
+public class Node implements Runnable{
+
+
     private Agent agent = null;
     private Boolean running = true;
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
-    public static List<Node> neighbors = new ArrayList<>();
+    private List<Node> neighbors = new ArrayList<>();
     private Random randomNeighbor = new Random();
     private int xValue;
     private int yValue;
     private boolean isStation;
+    private boolean isYellow;
     private boolean isFire;
-    private boolean nearFire;
     private int weight = Integer.MAX_VALUE;
-
 
     /**
      * Constructor for a sensor node
-     *
-     * @param x       : x coordinate of the node in the network
-     * @param y       : y coordinate of the node in the network
+     * @param x : x coordinate of the node in the network
+     * @param y : y coordinate of the node in the network
      * @param station : indicates if the node is the station
-     * @param fire    : indicates if the node is on fire
+     * @param fire : indicates if the node is on fire
      */
-    public Node(int x, int y, boolean station, boolean fire) {
+    public Node(int x, int y, boolean station, boolean fire){
         this.xValue = x;
         this.yValue = y;
         this.isStation = station;
         this.isFire = fire;
-        this.nearFire = false;
-    }
-
-    public void setNearFire() {
-        nearFire = true;
-    }
-
-
-    public boolean isNearFire() {
-        return nearFire;
     }
 
     /**
      * Set this nodes fire to true
      */
-    public void setFire() {
+    public void setFire(){
         isFire = true;
     }
 
+    public boolean isNearFire(){
+        return isYellow;
+    }
     /**
      * Set this nodes station to true
      */
-    public void setStation() {
+    public void setStation(){
         isStation = true;
+    }
+    public void setNearFire(){
+        isYellow = true;
     }
 
     /**
      * Get sensor station status
      */
-    public Boolean isStation() {
+    public Boolean isStation(){
         return isStation;
     }
 
     /**
      * Get sensor fire status
      */
-    public Boolean isFire() {
+    public Boolean isFire(){
         return isFire;
     }
-
+    /**
+     * Get sensor fire status
+     */
+    public Boolean isYellow(){
+        return isYellow;
+    }
     /**
      * Get x coordinate of this tile
      */
-    public int getX() {
+    public int getX(){
         return xValue;
     }
 
     /**
      * Get y coordinate of this tile
      */
-    public int getY() {
+    public int getY(){
         return yValue;
     }
 
-    public void run() {
-        while (running) {
+    public void run(){
+        while(running) {
             System.out.println("Thread is running: " + this);
             processMessageQueue();
-            if (this.isFire) {
+            if(this.isFire) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException iE) {
@@ -122,34 +123,36 @@ public class Node implements Runnable {
     }
 
     // Agents
-    synchronized public void moveAgent() {
+    synchronized public void moveAgent(){
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
-        if (neighbor.agent == null) {
-            if (this.isFire) {
+        if(this.agent == null){
+            if(neighbor.isFire){
                 System.out.println("FIRE FOUND");
                 // todo: send the message that Fire was found
                 agent.foundFire();
+                agent.cloneOn(neighbor);
 
-            } else if (neighbor.setAgent(this.agent) && this.agent.setNode(neighbor)) {
+            }
+            else if(neighbor.setAgent(this.agent)&&this.agent.setNode(neighbor)){
                 this.agent = null;
             }
         }
     }
 
-    synchronized public void spreadFire(Node node) {
-        for (Node neighbor : node.neighbors) {
-            if (neighbor.isFire == false && neighbor.isNearFire() == false) {
+    synchronized public void spreadFire(Node node){
+        for(Node neighbor : node.neighbors) {
+            if (neighbor.isFire == false && neighbor.isYellow == false) {
 
-                neighbor.nearFire = true;
+                neighbor.isYellow = true;
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException iE) {
-                    System.out.println("ZZzzzzzz interuption: " + iE);
-                }
-
-                neighbor.isFire = true;
-                neighbor.nearFire = false;
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException iE) {
+//                    System.out.println("ZZzzzzzz interuption: " + iE);
+//                }
+//
+//                neighbor.isFire = true;
+//                neighbor.isYellow = false;
             }
         }
     }
@@ -174,25 +177,26 @@ public class Node implements Runnable {
         this.isFire = true;
     }
 
-    synchronized public void cloneAgent(Node node) {
-        for (Node neighbor : node.neighbors) {
+    synchronized public void cloneAgent(Node node){
+        for(Node neighbor : node.neighbors){
             cloneOn(neighbor);
         }
 
     }
 
-    synchronized public void cloneOn(Node node) {
+    synchronized public void cloneOn(Node node)
+    {
         Agent newAgent = new Agent(node);
         node.setAgent(newAgent);
     }
 
 
     // Nodes
-    public void addNeighbor(Node neighbor) {
+    public void addNeighbor(Node neighbor){
         neighbors.add(neighbor);
     }
 
-    public int getWeight() {
+    public int getWeight(){
         return weight;
     }
 
@@ -201,34 +205,30 @@ public class Node implements Runnable {
     }
     // Setters
 
-    public void setWeight(int newWeight) {
+    public void setWeight(int newWeight){
         this.weight = newWeight;
     }
 
     protected void setNeighbors(List<Node> newNeighbors) {
         this.neighbors = newNeighbors;
     }
-
     // Queue Messages
-    synchronized public void addMessage(String message) {
+    synchronized public void addMessage(String message){
         queue.add(message);
     }
-
-    synchronized public Boolean setAgent(Agent newAgent) {
+    synchronized public Boolean setAgent(Agent newAgent){
         this.agent = newAgent;
-        return (this.agent.equals(newAgent)) ? true : false;
+        return (this.agent.equals(newAgent))?true:false;
     }
-
     public Agent getAgent() {
         return this.agent;
     }
-
     // Override ToString
     @Override
-    synchronized public String toString() {
-        return String.format("Node @ (" + xValue + ", " + yValue + ") weight: " +
+    synchronized public String toString(){
+        return String.format("Node @ ("+ xValue + ", " + yValue + ") weight: " +
                 weight + ", isStation: " + isStation + ", " + "isOnFire" + ": " +
                 isFire + " isYellow" + ": " +
-                isFire + ", and hasAgent: " + ((agent != null) ? "true" : "false"));
+                isYellow + ", and hasAgent: " +((agent!=null)?"true":"false"));
     }
 }
