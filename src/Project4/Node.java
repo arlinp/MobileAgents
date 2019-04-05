@@ -141,6 +141,13 @@ public class Node implements Runnable {
             if (neighbor.isFire == false && neighbor.isNearFire() == false) {
 
                 neighbor.nearFire = true;
+                for(int x = 0; x < Controller.sensors.size(); x++){
+                    if(neighbor.getX() == Controller.sensors.get(x).getX() &&
+                    neighbor.getY() == Controller.sensors.get(x).getY()){
+                        Controller.sensors.get(x).setNearFire();
+                    }
+                }
+
 
                 try {
                     Thread.sleep(1000);
