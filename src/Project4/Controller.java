@@ -22,11 +22,6 @@ public class Controller {
     Node station = null;
     GraphDisplay gd;
 
-    public Controller(GraphDisplay gd){
-        this.gd = gd;
-    }
-
-
     /**
      * Reads in the graph configuration file, parses the information of each line to either
      * create a new node, create an edge between nodes, set the fire location, or set the
