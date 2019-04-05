@@ -21,6 +21,7 @@ public class Node implements Runnable {
     private boolean isStation;
     private boolean isFire;
     private boolean nearFire;
+    public boolean hasAgent;
     private int weight = Integer.MAX_VALUE;
 
 
@@ -38,13 +39,20 @@ public class Node implements Runnable {
         this.isStation = station;
         this.isFire = fire;
         this.nearFire = false;
+        this.hasAgent = false;
     }
 
+    /**
+     * Sets nearFire status of this node to true
+     */
     public void setNearFire() {
         nearFire = true;
     }
 
-
+    /**
+     * Gets nearFire state of this node
+     * @return
+     */
     public boolean isNearFire() {
         return nearFire;
     }
@@ -125,12 +133,27 @@ public class Node implements Runnable {
     synchronized public void moveAgent() {
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
         if (neighbor.agent == null) {
+            //temp values
+            int xVal = this.agent.getNode().getX();
+            int yVal = this.agent.getNode().getY();
+
             if (this.isFire) {
                 System.out.println("FIRE FOUND");
                 // todo: send the message that Fire was found
                 agent.foundFire();
 
             } else if (neighbor.setAgent(this.agent) && this.agent.setNode(neighbor)) {
+                //Loop through sensors and change hasAgent accordingly
+                for(int x = 0; x < Controller.sensors.size(); x++){
+                    if(Controller.sensors.get(x).getX() == neighbor.getX() &&
+                            Controller.sensors.get(x).getY() == neighbor.getY()){
+                        Controller.sensors.get(x).hasAgent = true;
+                    }
+                    if(Controller.sensors.get(x).getX() == xVal &&
+                            Controller.sensors.get(x).getY() == yVal) {
+                        Controller.sensors.get(x).hasAgent = false;
+                    }
+                }
                 this.agent = null;
             }
         }
@@ -141,13 +164,14 @@ public class Node implements Runnable {
             if (neighbor.isFire == false && neighbor.isNearFire() == false) {
 
                 neighbor.nearFire = true;
+
+                //Loop through sensors to change nearFire state
                 for(int x = 0; x < Controller.sensors.size(); x++){
                     if(neighbor.getX() == Controller.sensors.get(x).getX() &&
-                    neighbor.getY() == Controller.sensors.get(x).getY()){
+                            neighbor.getY() == Controller.sensors.get(x).getY()){
                         Controller.sensors.get(x).setNearFire();
                     }
                 }
-
 
                 try {
                     Thread.sleep(1000);
