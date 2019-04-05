@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 public class GraphDisplay {
     public static Pane display;
+    public static Pane graph;
     public static FlowPane stationLog;
     public static ArrayList<Node> nodes;
     public static int displayWidth = 800;
@@ -26,12 +27,23 @@ public class GraphDisplay {
      * Constructor for the graph graph.
      * @return display
      */
-    public Pane createGraph(){
+    public Pane createDisplay(){
         display = new Pane();
-        display.setPrefSize(displayWidth, 400);
+        display.setPrefSize(displayWidth, displayHeight);
         display.setStyle("-fx-background-color:  #003300;");
-        display.getChildren().add(createStationLog());
+        display.getChildren().addAll(createGraph(), createStationLog());
         return display;
+    }
+
+    /**
+     * Creates the pane to display the graph
+     * @return graph pane
+     */
+    public Pane createGraph(){
+        graph = new Pane();
+        graph.setPrefSize(displayWidth, 400);
+        graph.setStyle("-fx-background-color:  #003300;");
+        return graph;
     }
 
     /**
@@ -59,8 +71,10 @@ public class GraphDisplay {
     public void createNode(int x, int y, Color color){
         Circle circle = new Circle(15, color);
         circle.relocate((x*80)+100, (y*80)+20);
-        display.getChildren().add(circle);
+        graph.getChildren().add(circle);
     }
+
+
 
     /**
      * Creates a line object and adds to the display
@@ -73,7 +87,7 @@ public class GraphDisplay {
         int endY = 15 + edge.getEndY() * 80;
         Line line = new Line(startX+100, startY+20, endX+100, endY+20);
         line.setStroke(Color.WHITE);
-        display.getChildren().add(line);
+        graph.getChildren().add(line);
     }
 
     /**
@@ -102,7 +116,8 @@ public class GraphDisplay {
 
             if (node.isFire()){
                 for(int i = 0; i < Controller.edges.size(); i++){
-                    if((Controller.edges.get(i).getEndX() == node.getX()) && (Controller.edges.get(i).getEndY() == node.getY())){
+                    if((Controller.edges.get(i).getEndX() == node.getX()) && (Controller.edges.get(i).getEndY() == node.getY()) &&
+                        !node.isFire()){
                         createNode(Controller.edges.get(i).getStartX(), Controller.edges.get(i).getStartY(), Color.YELLOW);
                         for(int y  = 0; y < nodes.size(); y++) {
                             if(nodes.get(y).getX() == Controller.edges.get(i).getStartX() && nodes.get(y).getY() == Controller.edges.get(i).getStartY()){
@@ -120,6 +135,9 @@ public class GraphDisplay {
                     }
                 }
                 createNode(node.getX(), node.getY(), Color.RED);
+            }
+            if(node.isNearFire()){
+                createNode(node.getX(), node.getY(), Color.YELLOW);
             }
         }
 
