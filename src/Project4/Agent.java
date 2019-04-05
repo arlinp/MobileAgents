@@ -46,7 +46,6 @@ public class Agent implements Runnable, Cloneable{
                         cloneOn(neighbor);
                     }
                 }
-
             }
             try {
                 Thread.sleep(1000);
@@ -68,7 +67,7 @@ public class Agent implements Runnable, Cloneable{
         }
 
     }
-    
+
     synchronized public void addMessage(String message) {
         queue.add(message);
     }
