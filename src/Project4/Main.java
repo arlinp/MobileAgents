@@ -15,7 +15,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-
     public static void main(String[] args) throws Exception{
         launch(args);
     }
@@ -28,9 +27,9 @@ public class Main extends Application {
         Scene scene = new Scene(root, GraphDisplay.displayWidth, GraphDisplay.displayHeight);
         primaryStage.setScene(scene);
         primaryStage.show();
-
         new Controller().readGraph();
 
+        //Start animation timer to update GUI
         AnimationTimer a = new AnimationTimer() {
             @Override
             public void handle(long now) {
