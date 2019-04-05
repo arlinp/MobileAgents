@@ -72,9 +72,16 @@ public class GraphDisplay {
         Circle circle = new Circle(15, color);
         circle.relocate((x*80)+100, (y*80)+20);
         graph.getChildren().add(circle);
+        for(int i = 0; i < Controller.sensors.size(); i++){
+            if(Controller.sensors.get(i).getX() == x && Controller.sensors.get(i).getY() == y){
+                if(Controller.sensors.get(i).hasAgent){
+                    Circle agent = new Circle(7, Color.BLACK);
+                    agent.relocate((x*80)+110, (y*80)+30);
+                    graph.getChildren().add(agent);
+                }
+            }
+        }
     }
-
-
 
     /**
      * Creates a line object and adds to the display
@@ -116,19 +123,23 @@ public class GraphDisplay {
 
             if (node.isFire()){
                 for(int i = 0; i < Controller.edges.size(); i++){
-                    if((Controller.edges.get(i).getEndX() == node.getX()) && (Controller.edges.get(i).getEndY() == node.getY()) &&
-                        !node.isFire()){
+                    if((Controller.edges.get(i).getEndX() == node.getX()) && (
+                            Controller.edges.get(i).getEndY() == node.getY()) &&
+                            !node.isFire()){
                         createNode(Controller.edges.get(i).getStartX(), Controller.edges.get(i).getStartY(), Color.YELLOW);
                         for(int y  = 0; y < nodes.size(); y++) {
-                            if(nodes.get(y).getX() == Controller.edges.get(i).getStartX() && nodes.get(y).getY() == Controller.edges.get(i).getStartY()){
+                            if(nodes.get(y).getX() == Controller.edges.get(i).getStartX() && 
+                                    nodes.get(y).getY() == Controller.edges.get(i).getStartY()){
                                 nodes.get(y).setNearFire();
                             }
                         }
                     }
-                    if((Controller.edges.get(i).getStartX() == node.getX()) && (Controller.edges.get(i).getStartY() == node.getY())){
+                    if((Controller.edges.get(i).getStartX() == node.getX()) && 
+                            (Controller.edges.get(i).getStartY() == node.getY())){
                         createNode(Controller.edges.get(i).getEndX(), Controller.edges.get(i).getEndY(), Color.YELLOW);
                         for(int y  = 0; y < nodes.size(); y++) {
-                            if(nodes.get(y).getX() == Controller.edges.get(i).getEndX() && nodes.get(y).getY() == Controller.edges.get(i).getEndY()){
+                            if(nodes.get(y).getX() == Controller.edges.get(i).getEndX() && 
+                                    nodes.get(y).getY() == Controller.edges.get(i).getEndY()){
                                 nodes.get(y).setNearFire();
                             }
                         }
