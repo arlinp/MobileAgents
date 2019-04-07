@@ -2,7 +2,6 @@ package Project4;
 /**
  * Main class / entry point for the program.  Sets up the scene
  * and starts the animation timer
- *
  * @authors A. Pedregon, J. Lusby
  * @date 03/24/19
  * @version 1.0
@@ -22,13 +21,16 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Mobile Agents");
+
         GraphDisplay graph = new GraphDisplay();
         Group root = new Group(graph.createGraph());
+
         Scene scene = new Scene(root, GraphDisplay.displayWidth, GraphDisplay.displayHeight);
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        new Controller().readGraph();
+        Controller controller = new Controller(graph);
+        controller.readGraph();
         graph.setUp();
 
         AnimationTimer a = new AnimationTimer() {

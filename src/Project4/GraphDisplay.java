@@ -6,6 +6,7 @@ package Project4;
  * @date 03/24/19
  * @version 1.0
  */
+import javafx.geometry.Point2D;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -14,6 +15,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class GraphDisplay {
     public static Pane display;
@@ -21,6 +23,7 @@ public class GraphDisplay {
     public static ArrayList<Node> nodes;
     public static int displayWidth = 800;
     public static int displayHeight = 600;
+    public Hashtable<Point2D, Node> nodeHashtable = new Hashtable();
 
     /**
      * Constructor for the graph graph.
@@ -56,10 +59,28 @@ public class GraphDisplay {
      * @param y : y coordinate of the nwe node
      * @param color : color of the node
      */
-    public void createNode(int x, int y, Color color){
+    public void drawNode(int x, int y, Color color){
+
         Circle circle = new Circle(15, color);
         circle.relocate((x*80)+100, (y*80)+20);
         display.getChildren().add(circle);
+
+    }
+
+    /**
+     * Creates a graph node to represent a sensor in the network
+     * @param x ; x coordinate of the new node
+     * @param y : y coordinate of the nwe node
+     */
+    public void drawAgent(int x, int y){
+
+        Circle circle = new Circle(15, null );
+        circle.setStroke(Color.GOLD);
+        circle.setStrokeWidth(2);
+        circle.relocate((x*80)+100, (y*80)+20);
+
+        display.getChildren().add(circle);
+
     }
 
     /**
@@ -92,48 +113,40 @@ public class GraphDisplay {
      * Updates the graph
      */
     public void setUp(){
-        nodes = Controller.sensors;
-        //Loop through sensor list and add nodes to display
-        for(int x  = 0; x < nodes.size(); x++){
-            Node node = nodes.get(x);
-            if(node.isStation()){
-                createNode(node.getX(), node.getY(), Color.GREEN);
-            }
-
-            if (node.isFire()){
-                for(int i = 0; i < Controller.edges.size(); i++){
-                    if((Controller.edges.get(i).getEndX() == node.getX()) && (Controller.edges.get(i).getEndY() == node.getY())){
-                        createNode(Controller.edges.get(i).getStartX(), Controller.edges.get(i).getStartY(), Color.YELLOW);
-                        for(int y  = 0; y < nodes.size(); y++) {
-                            if(nodes.get(y).getX() == Controller.edges.get(i).getStartX() && nodes.get(y).getY() == Controller.edges.get(i).getStartY()){
-                                nodes.get(y).setNearFire();
-                            }
-                        }
-                    }
-                    if((Controller.edges.get(i).getStartX() == node.getX()) && (Controller.edges.get(i).getStartY() == node.getY())){
-                        createNode(Controller.edges.get(i).getEndX(), Controller.edges.get(i).getEndY(), Color.YELLOW);
-                        for(int y  = 0; y < nodes.size(); y++) {
-                            if(nodes.get(y).getX() == Controller.edges.get(i).getEndX() && nodes.get(y).getY() == Controller.edges.get(i).getEndY()){
-                                nodes.get(y).setNearFire();
-                            }
-                        }
-                    }
-                }
-                createNode(node.getX(), node.getY(), Color.RED);
-            }
-        }
-
-        for(int x  = 0; x < nodes.size(); x++) {
-            Node node = nodes.get(x);
-            if (!node.isStation() && !node.isFire() && !node.isNearFire()) {
-                createNode(node.getX(), node.getY(), Color.BLUE);
-            }
-        }
 
         //Loop through the edge list and add create lines between nodes
         for(int x = 0; x < Controller.edges.size(); x++){
             createLine(Controller.edges.get(x));
         }
+
+        //Loop through node list and add nodes to display
+
+        nodes = new ArrayList<Node>(Controller.nodes.values());
+
+        for(int x  = 0; x < nodes.size(); x++){
+            Node node = nodes.get(x);
+
+            if(node.isStation()){
+                drawNode(node.getX(), node.getY(), Color.GREEN);
+            }
+            if(node.getAgent() != null){
+                drawAgent(node.getX(), node.getY());
+            }
+
+            else if(node.getState().equals("blue") && !node.isStation()){
+                drawNode(node.getX(), node.getY(), Color.BLUE);
+            }
+
+            else if (node.getState().equals("fire")){
+                drawNode(node.getX(), node.getY(), Color.RED);
+            }
+
+            else if (node.getState().equals("yellow")){
+                drawNode(node.getX(), node.getY(), Color.YELLOW);
+            }
+        }
+
+
     }
 
     public void update(){

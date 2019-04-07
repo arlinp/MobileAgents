@@ -20,10 +20,13 @@ public class Controller {
     public static Hashtable<Point2D, Node> nodes = new Hashtable();
     Hashtable<Node, Thread> nodeThreads = new Hashtable();
     Node station = null;
-    GraphDisplay gd;
+    GraphDisplay graphDisplay;
 
+    public Controller(GraphDisplay gd){
+        this.graphDisplay = gd;
+        gd.nodeHashtable = getNodes();
 
-
+    }
     /**
      * Reads in the graph configuration file, parses the information of each line to either
      * create a new node, create an edge between nodes, set the fire location, or set the
@@ -42,8 +45,8 @@ public class Controller {
             if(st.charAt(0) == 'n'){
                 int x = st.charAt(5) - 48;
                 int y = st.charAt(7) - 48;
-                sensors.add(new Node(x, y, false, false));
-                addNodeToTables(createPoint(st.charAt(5) - 48, st.charAt(7) - 48));
+                sensors.add(new Node(x, y));
+                addNodeToTables(createPoint(x, y));
             }
 
             //if the line indicates an edge, create an edge
@@ -61,10 +64,11 @@ public class Controller {
                 fireCount++;
                 int x = st.charAt(5) - 48;
                 int y = st.charAt(7) - 48;
+                Point2D fireLocation = createPoint(x, y);
+                nodes.get(fireLocation).setFire();
                 for(int i = 0; i < sensors.size(); i++){
                     if(sensors.get(i).getX() == x && sensors.get(i).getY() == y){
                         sensors.get(i).setFire();
-                        nodes.get(createPoint(st.charAt(5) - 48, st.charAt(7) - 48)).setFire();
                     }
                 }
             }
@@ -74,12 +78,8 @@ public class Controller {
                 stationCount++;
                 int x = st.charAt(8) - 48;
                 int y = st.charAt(10) - 48;
-                for(int i = 0; i < sensors.size(); i++){
-                    if(sensors.get(i).getX() == x && sensors.get(i).getY() == y){
-                        sensors.get(i).setStation();
-                        setNodeAsStation(createPoint(st.charAt(8) - 48, st.charAt(10) - 48));
-                    }
-                }
+                Point2D stationLocation = createPoint(x, y);
+                setNodeAsStation(stationLocation);
             }
         }
 
@@ -109,12 +109,12 @@ public class Controller {
 
     /**
      *
-     * @param location
+     * @param stationLocation
      */
-    private void setNodeAsStation(Point2D location) {
-        station = nodes.get(location);
-        station.setStation();
-        createAgentOnNode(station);
+    private void setNodeAsStation(Point2D stationLocation) {
+        nodes.get(stationLocation).setStation();
+        station = nodes.get(stationLocation);
+        createAgentOnNode(nodes.get(stationLocation));
     }
 
     /**
@@ -165,7 +165,7 @@ public class Controller {
 
     private Node createNode(Point2D location){
 
-        return new Node((int)location.getX(), (int)location.getY(), false, false);
+        return new Node((int)location.getX(), (int)location.getY());
     }
 
     /**
@@ -174,9 +174,9 @@ public class Controller {
      * @param yValue : y coordinate
      * @return new 2D point
      */
-    public static Point2D createPoint(int xValue, int yValue) {
-        double x = xValue;
-        double y = yValue;
+    public Point2D createPoint(int xValue, int yValue) {
+        int x = xValue;
+        int y = yValue;
         return new Point2D(x,y);
     }
 

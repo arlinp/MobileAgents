@@ -10,7 +10,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Agent implements Runnable, Cloneable{
-    private boolean fireFound = false;
+    public boolean fireFound = false;
     private Node node;
     private Boolean running = true;
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
@@ -22,6 +22,7 @@ public class Agent implements Runnable, Cloneable{
      * Makes a new agent,
      * assigns the node to it,
      * names it after position of node
+     * -This makes the naming of each node unique
      * @param newNode
      */
     public Agent(Node newNode){
@@ -34,25 +35,34 @@ public class Agent implements Runnable, Cloneable{
     }
 
     public void run(){
-        while (running) {
+        while(!Thread.interrupted()) {
+
+            processMessageQueue();
+
             System.out.println("Agent Thread: " + this);
-            if (!fireFound) {
-                node.moveAgent();
-                // todo: report new location to base once
 
-            } else {
-                for(Node neighbor : node.getNeighbors()){
-                    if(neighbor.isFire() == false && neighbor.isNearFire() == false) {
-                        cloneOn(neighbor);
-                    }
-                }
-
+            if(!fireFound){
+                addMessage("moveAgent");
             }
+
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                System.out.println("Interrupted: " + e);
+            } catch (InterruptedException iE) {
+                System.out.println("ZZzzzzzz interuption: " + iE);
             }
+        }
+    }
+
+    synchronized private void processMessageQueue() {
+        if (!queue.isEmpty()) {
+            String[] message = queue.remove().split(" ");
+                if (message[0].equals("moveAgent")) {
+                    node.moveAgent();
+                }
+                else if(message[0].equals("fire")){
+                    fireFound = true;
+                    System.out.println("Fire FOUND");
+                }
         }
     }
 
