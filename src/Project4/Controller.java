@@ -17,14 +17,14 @@ public class Controller {
     private int stationCount = 0;
     public static ArrayList<Node> sensors = new ArrayList<>();
     public static ArrayList<Edge> edges = new ArrayList<>();
-    public static Hashtable<Point2D, Node> nodes = new Hashtable();
+    public Hashtable<Point2D, Node> nodes = new Hashtable();
     Hashtable<Node, Thread> nodeThreads = new Hashtable();
     Node station = null;
     GraphDisplay graphDisplay;
 
     public Controller(GraphDisplay gd){
         this.graphDisplay = gd;
-        gd.nodeHashtable = getNodes();
+        gd.nodeHashtable = nodes;
 
     }
     /**
@@ -85,6 +85,12 @@ public class Controller {
 
         //map node weights and start node threads
         mapWeightsToStation(0, station);
+
+    }
+
+    public void startThreads(){
+
+        mapWeightsToStation(0, station);
         for (Node node: nodeThreads.keySet()){
             nodeThreads.get(node).start();
         }
@@ -126,6 +132,11 @@ public class Controller {
         agentNode.setAgent(agent);
         Thread agentThread = new Thread(agent);
         agentThread.start();
+    }
+
+    synchronized public void cloneOn(Node node) {
+        Agent newAgent = new Agent(node);
+        node.setAgent(newAgent);
     }
 
     /**

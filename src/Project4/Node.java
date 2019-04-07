@@ -39,85 +39,73 @@ public class Node implements Runnable {
         this.isFire = false;
     }
 
+
+
     public void run() {
         while (!Thread.interrupted()) {
 
             processMessageQueue();
 
-
             System.out.println("Thread is running: " + this);
 
-
             if(state.equals("fire")){
-                addMessage(state);
+                isFire = true;
+                for (Node neighbor : neighbors) {
+                    if(neighbor.state == "blue") {
+                        neighbor.addMessage("near");
+                    }
+                }
+            }
+
+            if(state.equals("yellow")){
+                isYellow = true;
+                addMessage("fire");
             }
 
             try {
                 Thread.sleep(1000);
+
             } catch (InterruptedException iE) {
                 System.out.println("ZZzzzzzz interuption: " + iE);
             }
+
         }
 
     }
 
     synchronized private void processMessageQueue() {
         if (!queue.isEmpty()) {
-            String[] message = queue.remove().split(" ");
-            if (message[0].equals("fire")) {
-                for (Node neighbor : neighbors) {
-                    neighbor.addMessage("near");
-                }
-            }
-            if (message[0].equals("near")) {
+
+            String message = queue.remove();
+
+            if ( message.equals("near") ){
                 isYellow = true;
                 state = "yellow";
             }
+
+            else if ( message.equals("fire") ){
+                state = "fire";
+                agent = null;
+            }
+
         }
     }
+
 
     // Agents
     synchronized public void moveAgent() {
 
-        //quick loop to look around and see if there's fire
-        for(Node node : neighbors){
-            if(node.getState().equals("fire")){
-                agent.addMessage("fire");
-                break;
-            }
-        }
-
-        //commence random walk
+            //commence random walk
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
 
         if (neighbor.agent == null) {
-             if(getState().equals("yellow")){
-                 agent.foundFire();
-            }
-            else if (neighbor.setAgent(this.agent) && this.agent.setNode(neighbor)) {
+            if (neighbor.setAgent(this.agent) && this.agent.setNode(neighbor)) {
                 this.agent = null;
             }
         }
 
     }
 
-    synchronized public void spreadFire(Node node) {
-        for (Node neighbor : node.neighbors) {
-            if (neighbor.isFire == false && neighbor.isYellow == false) {
-
-                neighbor.isYellow = true;
-
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException iE) {
-//                    System.out.println("ZZzzzzzz interuption: " + iE);
-//                }
-//
-//                neighbor.isFire = true;
-//                neighbor.isYellow = false;
-            }
-        }
-    }
 
     private void waitAndLightOnFire() {
         try {
@@ -126,28 +114,20 @@ public class Node implements Runnable {
             System.out.println("ZZzzzzzz interuption: " + iE);
         }
 
-    }
-
-    private void lightOnFireAndDestroy() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException iE) {
-            System.out.println("ZZzzzzzz interuption: " + iE);
-        }
-        this.isFire = true;
-    }
-
-    synchronized public void cloneAgent(Node node) {
-        for (Node neighbor : node.neighbors) {
-            cloneOn(neighbor);
-        }
 
     }
 
-    synchronized public void cloneOn(Node node) {
-        Agent newAgent = new Agent(node);
-        node.setAgent(newAgent);
-    }
+//    synchronized public void cloneAgent(Node node) {
+//        for (Node neighbor : node.neighbors) {
+//            cloneOn(neighbor);
+//        }
+//
+//    }
+
+//    synchronized public void cloneOn(Node node) {
+//        Agent newAgent = new Agent(node);
+//        node.setAgent(newAgent);
+//    }
 
 
     // Nodes
@@ -250,11 +230,14 @@ public class Node implements Runnable {
 
     synchronized public Boolean setAgent(Agent newAgent) {
         this.agent = newAgent;
-        return (this.agent.equals(newAgent)) ? true : false;
+        return true;
+        //return (this.agent.equals(newAgent)) ? true : false;
     }
 
     synchronized public Agent getAgent() {
         return this.agent;
     }
+
+
 
 }

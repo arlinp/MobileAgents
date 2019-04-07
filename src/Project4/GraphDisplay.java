@@ -6,24 +6,31 @@ package Project4;
  * @date 03/24/19
  * @version 1.0
  */
+import javafx.animation.AnimationTimer;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class GraphDisplay {
-    public static Pane display;
-    public static FlowPane stationLog;
-    public static ArrayList<Node> nodes;
-    public static int displayWidth = 800;
-    public static int displayHeight = 600;
+    public Pane display;
+    public FlowPane stationLog;
+    public ArrayList<Node> nodes;
+    public int displayWidth = 800;
+    public int displayHeight = 600;
     public Hashtable<Point2D, Node> nodeHashtable = new Hashtable();
+    private Hashtable<Node, Shape> nodeList = new Hashtable<>();
+    private Hashtable<Agent, Circle> agentList = new Hashtable<>();
+    private Text newAgent;
+
 
     /**
      * Constructor for the graph graph.
@@ -59,12 +66,11 @@ public class GraphDisplay {
      * @param y : y coordinate of the nwe node
      * @param color : color of the node
      */
-    public void drawNode(int x, int y, Color color){
+    public void drawNode(int x, int y, Color color, Node node){
 
-        Circle circle = new Circle(15, color);
-        circle.relocate((x*80)+100, (y*80)+20);
+        Circle circle = new Circle((x*80)+100, (y*80)+20,15, color);
+        nodeList.put(node, circle);
         display.getChildren().add(circle);
-
     }
 
     /**
@@ -72,14 +78,15 @@ public class GraphDisplay {
      * @param x ; x coordinate of the new node
      * @param y : y coordinate of the nwe node
      */
-    public void drawAgent(int x, int y){
+    public void drawAgent(int x, int y, Agent agent){
 
-        Circle circle = new Circle(15, null );
-        circle.setStroke(Color.GOLD);
-        circle.setStrokeWidth(2);
-        circle.relocate((x*80)+100, (y*80)+20);
-
+        Circle circle = new Circle(14, null );
+        circle.relocate((x*80)+80, (y*80)+0 );
+        circle.setStroke(Color.LIMEGREEN);
+        circle.setStrokeWidth(4);
+        agentList.put(agent, circle);
         display.getChildren().add(circle);
+
 
     }
 
@@ -88,10 +95,10 @@ public class GraphDisplay {
      * @param edge : line between graph nodes
      */
     public void createLine(Edge edge){
-        int startX = 15 + edge.getStartX() * 80;
-        int startY = 15 + edge.getStartY() * 80;
-        int endX = 15 + edge.getEndX() * 80;
-        int endY = 15 + edge.getEndY() * 80;
+        int startX = edge.getStartX() * 80;
+        int startY = edge.getStartY() * 80;
+        int endX = edge.getEndX() * 80;
+        int endY = edge.getEndY() * 80;
         Line line = new Line(startX+100, startY+20, endX+100, endY+20);
         line.setStroke(Color.WHITE);
         display.getChildren().add(line);
@@ -102,9 +109,9 @@ public class GraphDisplay {
      * @param name : unique Agent Id name
      * @param node : node the agent was created on
      */
-    public static void createMessage(String name, Node node){
-        Text newLog = new Text("\tAgent: " + name +
-                " Created at (" + node.getX() + "," + node.getY() + ")\t");
+    public void createMessage(String name, Node node){
+        Text newLog = new Text("Agent: " + name +
+                " Created at (" + node.getX() + "," + node.getY() + ")");
         newLog.setStroke(Color.WHITE);
         stationLog.getChildren().add(newLog);
     }
@@ -112,6 +119,16 @@ public class GraphDisplay {
     /**
      * Updates the graph
      */
+    public void start(){
+        AnimationTimer a = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+
+                update();
+            }
+        };
+        a.start();
+    }
     public void setUp(){
 
         //Loop through the edge list and add create lines between nodes
@@ -121,34 +138,63 @@ public class GraphDisplay {
 
         //Loop through node list and add nodes to display
 
-        nodes = new ArrayList<Node>(Controller.nodes.values());
+        nodes = new ArrayList<>(nodeHashtable.values());
+        Node nodeWithAgent = null;
 
-        for(int x  = 0; x < nodes.size(); x++){
-            Node node = nodes.get(x);
+        for(Node node : nodes){
+
+            if(node.getAgent() != null){
+                nodeWithAgent = node;
+            }
 
             if(node.isStation()){
-                drawNode(node.getX(), node.getY(), Color.GREEN);
-            }
-            if(node.getAgent() != null){
-                drawAgent(node.getX(), node.getY());
+                drawNode(node.getX(), node.getY(), Color.GREEN, node);
             }
 
+
             else if(node.getState().equals("blue") && !node.isStation()){
-                drawNode(node.getX(), node.getY(), Color.BLUE);
+                drawNode(node.getX(), node.getY(), Color.BLUE, node);
             }
 
             else if (node.getState().equals("fire")){
-                drawNode(node.getX(), node.getY(), Color.RED);
+                drawNode(node.getX(), node.getY(), Color.RED, node);
             }
 
             else if (node.getState().equals("yellow")){
-                drawNode(node.getX(), node.getY(), Color.YELLOW);
+                drawNode(node.getX(), node.getY(), Color.YELLOW, node);
             }
         }
 
+        if(nodeWithAgent != null) {
+            drawAgent(nodeWithAgent.getX(), nodeWithAgent.getY(), nodeWithAgent.getAgent());
+        }
 
     }
 
     public void update(){
+
+        nodes = new ArrayList<>(nodeHashtable.values());
+        for(Node node : nodes){
+            if(node.getAgent() != null) {
+                agentList.get(node.getAgent()).relocate((node.getX()*80)+85, (node.getY()*80)+5 ) ;
+            }
+            if(node.isStation()){
+                nodeList.get(node).setFill(Color.GREEN);
+            }
+
+            else if(node.getState().equals("blue") && !node.isStation()){
+                nodeList.get(node).setFill(Color.BLUE);
+            }
+
+            else if (node.getState().equals("fire")){
+                nodeList.get(node).setFill(Color.RED);
+
+            }
+
+            else if (node.getState().equals("yellow")){
+                nodeList.get(node).setFill(Color.YELLOW);
+
+            }
+        }
     }
 }

@@ -25,25 +25,17 @@ public class Main extends Application {
         GraphDisplay graph = new GraphDisplay();
         Group root = new Group(graph.createGraph());
 
-        Scene scene = new Scene(root, GraphDisplay.displayWidth, GraphDisplay.displayHeight);
+        Scene scene = new Scene(root, graph.displayWidth, graph.displayHeight);
         primaryStage.setScene(scene);
         primaryStage.show();
 
         Controller controller = new Controller(graph);
         controller.readGraph();
-        graph.setUp();
 
-        AnimationTimer a = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                System.out.println("main animation is running");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    System.out.println("Interupted: " + e);
-                }
-            }
-        };
-        a.start();
+        graph.setUp();
+        graph.start();
+
+        controller.startThreads();
+
     }
 }

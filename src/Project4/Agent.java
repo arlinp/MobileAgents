@@ -17,6 +17,7 @@ public class Agent implements Runnable, Cloneable{
     //using ID for test
     private String ID;
     private String ChildID;
+    private GraphDisplay display;
 
     /**
      * Makes a new agent,
@@ -31,7 +32,6 @@ public class Agent implements Runnable, Cloneable{
         String number = Integer.toString(newNode.getX());
         number += Integer.toString(newNode.getY());
         this.ID = number;
-        GraphDisplay.createMessage(ID, newNode);
     }
 
     public void run(){
@@ -39,10 +39,14 @@ public class Agent implements Runnable, Cloneable{
 
             processMessageQueue();
 
+
             System.out.println("Agent Thread: " + this);
 
-            if(!fireFound){
+            if(this.node.getState().equals("blue")){
                 addMessage("moveAgent");
+            }
+            else{
+                addMessage("fire");
             }
 
             try {
@@ -56,13 +60,21 @@ public class Agent implements Runnable, Cloneable{
     synchronized private void processMessageQueue() {
         if (!queue.isEmpty()) {
             String[] message = queue.remove().split(" ");
-                if (message[0].equals("moveAgent")) {
-                    node.moveAgent();
-                }
-                else if(message[0].equals("fire")){
+
+            if(message[0].equals("moveAgent")){
+                node.moveAgent();
+            }
+
+            if(message[0].equals("fire")){
                     fireFound = true;
-                    System.out.println("Fire FOUND");
-                }
+                    System.out.println("FIRE FOUND GOTTA CLONE");
+
+                    for(Node neighbor : node.getNeighbors()){
+                        if(!neighbor.getState().equals("fire")){
+                            cloneOn(neighbor);
+                        }
+                    }
+            }
         }
     }
 
