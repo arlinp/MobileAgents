@@ -1,7 +1,7 @@
 # Project 4 - Mobile Agents
 
 ### Requirements
-Program writtin using IntelliiJ IDEA <br> Java 8 <br> Entry for program is Display.java
+Program writtin using IntelliiJ IDEA <br> Java 8 <br> Entry for program is GraphDisplay.java
 
 ### Info
 Program that demonstrates a simulation system for a wireless sensor network application.  In this application we simulate a sensor network to be used in the detection and monitoring of forest fires.
