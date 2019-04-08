@@ -29,6 +29,8 @@ public class GraphDisplay {
     public Hashtable<Point2D, Node> nodeHashtable = new Hashtable();
     private Hashtable<Node, Shape> nodeList = new Hashtable<>();
     private Hashtable<Agent, Circle> agentList = new Hashtable<>();
+    private Hashtable<Node, Agent> nodesToAgents = new Hashtable<>();
+
     private Text newAgent;
 
 
@@ -174,10 +176,23 @@ public class GraphDisplay {
     public void update(){
 
         nodes = new ArrayList<>(nodeHashtable.values());
+
         for(Node node : nodes){
-            if(node.getAgent() != null) {
-                agentList.get(node.getAgent()).relocate((node.getX()*80)+85, (node.getY()*80)+5 ) ;
+
+            if(node.getAgent() != null && !agentList.isEmpty()) {
+                if(agentList.get(node.getAgent()) != null) {
+                    agentList.get(node.getAgent()).relocate((node.getX() * 80) + 85, (node.getY() * 80) + 5);
+
+                }
+                else{
+                    drawAgent(node.getX(), node.getY(), node.getAgent());
+                    agentList.get(node.getAgent()).relocate((node.getX() * 80) + 85, (node.getY() * 80) + 5);
+                    if(node.getState().equals("fire")){
+                        agentList.get(node.getAgent()).setFill(Color.GREY);
+                    }
+                }
             }
+
             if(node.isStation()){
                 nodeList.get(node).setFill(Color.GREEN);
             }

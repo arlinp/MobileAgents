@@ -7,6 +7,8 @@ package Project4;
  * @version 1.0
  */
 import javafx.geometry.Point2D;
+import javafx.scene.text.Text;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,9 +20,11 @@ public class Controller {
     public static ArrayList<Node> sensors = new ArrayList<>();
     public static ArrayList<Edge> edges = new ArrayList<>();
     public Hashtable<Point2D, Node> nodes = new Hashtable();
+    public Hashtable<Point2D, Agent> agents = new Hashtable();
+
     Hashtable<Node, Thread> nodeThreads = new Hashtable();
     Node station = null;
-    GraphDisplay graphDisplay;
+    static GraphDisplay graphDisplay;
 
     public Controller(GraphDisplay gd){
         this.graphDisplay = gd;
@@ -123,6 +127,10 @@ public class Controller {
         createAgentOnNode(nodes.get(stationLocation));
     }
 
+//    public ArrayList<Text> getLog(){
+//
+//    }
+
     /**
      *
      * @param agentNode
@@ -134,10 +142,6 @@ public class Controller {
         agentThread.start();
     }
 
-    synchronized public void cloneOn(Node node) {
-        Agent newAgent = new Agent(node);
-        node.setAgent(newAgent);
-    }
 
     /**
      *

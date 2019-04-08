@@ -6,6 +6,11 @@ package Project4;
  * @date 03/24/19
  * @version 1.0
  */
+import javafx.geometry.Point2D;
+import javafx.scene.text.Text;
+
+import java.awt.*;
+import java.util.Hashtable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,6 +23,9 @@ public class Agent implements Runnable, Cloneable{
     private String ID;
     private String ChildID;
     private GraphDisplay display;
+    public static Text log;
+    public Hashtable<Point2D, Agent> agents = new Hashtable();
+
 
     /**
      * Makes a new agent,
@@ -32,6 +40,8 @@ public class Agent implements Runnable, Cloneable{
         String number = Integer.toString(newNode.getX());
         number += Integer.toString(newNode.getY());
         this.ID = number;
+        Point2D point = new Point2D(newNode.getX(), newNode.getY());
+        agents.put(point, this);
     }
 
     public void run(){
@@ -42,12 +52,16 @@ public class Agent implements Runnable, Cloneable{
 
             System.out.println("Agent Thread: " + this);
 
-            if(this.node.getState().equals("blue")){
-                addMessage("moveAgent");
-            }
-            else{
+            if(!node.getState().equals("blue")){
+                fireFound = true;
                 addMessage("fire");
             }
+            else{
+                if(!queue.contains("moveAgent")) {
+                    addMessage("moveAgent");
+                }
+            }
+
 
             try {
                 Thread.sleep(1000);

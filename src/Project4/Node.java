@@ -84,8 +84,8 @@ public class Node implements Runnable {
             }
 
             else if ( message.equals("fire") ){
+                this.agent = null;
                 state = "fire";
-                agent = null;
             }
 
         }
@@ -99,7 +99,8 @@ public class Node implements Runnable {
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
 
         if (neighbor.agent == null) {
-            if (neighbor.setAgent(this.agent) && this.agent.setNode(neighbor)) {
+            if(neighbor.getState().equals("yellow")){ agent.addMessage("fire"); }
+            else if (neighbor.setAgent(this.agent) && this.agent.setNode(neighbor)) {
                 this.agent = null;
             }
         }
