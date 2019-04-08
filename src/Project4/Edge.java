@@ -8,6 +8,7 @@ package Project4;
  * @version 1.0
  */
 public class Edge {
+    //Coordinate values
     private int startX;
     private int startY;
     private int endX;
@@ -27,19 +28,19 @@ public class Edge {
         this.endY = endY;
     }
 
+    /**
+     * Getters to get the coordinate values of the edges
+     */
     public int getStartY(){
         return startY;
     }
-
     public int getStartX(){
         return startX;
     }
-    public int getEndX(){
+    public int getEndX() {
         return endX;
     }
     public int getEndY(){
         return endY;
     }
-
-
 }
