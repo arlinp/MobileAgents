@@ -1,6 +1,6 @@
 package Project4;
 /**
- * Class to create and manipulate a sensor node for the network
+ * Class to create and manipulate a sensor node and its state for the network.
  *
  * @authors A. Pedregon, J. Lusby
  * @date 03/24/19
@@ -11,8 +11,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Node implements Runnable {
-
-
     private Agent agent = null;
     private Boolean running = true;
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
@@ -25,10 +23,9 @@ public class Node implements Runnable {
     private boolean isFire;
     private String state = "blue";
     private int weight = Integer.MAX_VALUE;
-
     /**
-     * Constructor for a sensor node
-     *
+     * Constructor for a sensor node, Sets the nodes coordinates.
+     * Newly created nodes are not on fire and not a station by default
      * @param x : x coordinate of the node in the network
      * @param y : y coordinate of the node in the network
      */
@@ -39,15 +36,13 @@ public class Node implements Runnable {
         this.isFire = false;
     }
 
-
-
+    /**
+     * Runs the node threads to process the messages and change states
+     */
     public void run() {
         while (!Thread.interrupted()) {
-
             processMessageQueue();
-
             System.out.println("Thread is running: " + this);
-
             if(state.equals("fire")){
                 isFire = true;
                 for (Node neighbor : neighbors) {
@@ -68,21 +63,21 @@ public class Node implements Runnable {
             } catch (InterruptedException iE) {
                 System.out.println("ZZzzzzzz interuption: " + iE);
             }
-
         }
-
     }
 
+    /**
+     * Processes messages in the message queue.
+     * Sets the node states according to message in queue 
+     */
     synchronized private void processMessageQueue() {
         if (!queue.isEmpty()) {
-
             String message = queue.remove();
 
             if ( message.equals("near") ){
                 isYellow = true;
                 state = "yellow";
             }
-
             else if ( message.equals("fire") ){
                 this.agent = null;
                 state = "fire";
@@ -91,31 +86,26 @@ public class Node implements Runnable {
         }
     }
 
-
-    // Agents
+    /**
+     * Moves an agent from one node to another.  Agents randomly walk along the network.
+     */
     synchronized public void moveAgent() {
-
-            //commence random walk
+        //commence random walk
         Node neighbor = neighbors.get(randomNeighbor.nextInt(neighbors.size()));
-
         if (neighbor.agent == null) {
             if(neighbor.getState().equals("yellow")){ agent.addMessage("fire"); }
             else if (neighbor.setAgent(this.agent) && this.agent.setNode(neighbor)) {
                 this.agent = null;
             }
         }
-
     }
-
-
+    
     private void waitAndLightOnFire() {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException iE) {
             System.out.println("ZZzzzzzz interuption: " + iE);
         }
-
-
     }
 
 //    synchronized public void cloneAgent(Node node) {
@@ -130,15 +120,18 @@ public class Node implements Runnable {
 //        node.setAgent(newAgent);
 //    }
 
-
-    // Nodes
+    /**
+     * Adds this node to the neighbors list
+     * @param neighbor : node to add
+     */
     public void addNeighbor(Node neighbor) {
         neighbors.add(neighbor);
     }
 
-
-    // Setters
-
+    /**
+     * Sets the weight / of this node
+     * @param newWeight : integer value of nodes distance from the station
+     */
     public void setWeight(int newWeight) {
         this.weight = newWeight;
     }
@@ -147,12 +140,18 @@ public class Node implements Runnable {
         this.neighbors = newNeighbors;
     }
 
-    // Queue Messages
+    /**
+     * Adds message to the message queue 
+     * @param message : message to be added to the queue 
+     */
     synchronized public void addMessage(String message) {
         queue.add(message);
     }
 
-    // Override ToString
+    /**
+     * Prints out node states to standard out for evaluation / debugging
+     * @return string : (state of the node)
+     */
     @Override
     synchronized public String toString() {
         return String.format("Node @ (" + xValue + ", " + yValue + ") weight: " +
@@ -160,8 +159,7 @@ public class Node implements Runnable {
                 isFire + " isYellow" + ": " +
                 isYellow + ", and hasAgent: " + ((agent != null) ? "true" : "false"));
     }
-
-
+    
     /**
      * Get node's state
      */
@@ -185,7 +183,6 @@ public class Node implements Runnable {
         isFire = true;
         state = "fire";
     }
-
 
     /**
      * Set this nodes station to true
@@ -229,16 +226,22 @@ public class Node implements Runnable {
         return neighbors;
     }
 
+    /**
+     * Sets the agent 
+     * @param newAgent : agent to set
+     * @return boolean
+     */
     synchronized public Boolean setAgent(Agent newAgent) {
         this.agent = newAgent;
         return true;
         //return (this.agent.equals(newAgent)) ? true : false;
     }
 
+    /**
+     * Gets the agent on this node
+     * @return agent : agent located on node
+     */
     synchronized public Agent getAgent() {
         return this.agent;
     }
-
-
-
 }
