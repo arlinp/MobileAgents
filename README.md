@@ -16,10 +16,6 @@ Program reads an input text file that describes a sensor network and stores netw
 location, or fire location.  Location of the fire and base station must be indicated at the end of the configuration file or after the node has been read and initialized. 
 Simulation starts immediately with one agent at the base station.  As the agent begins randomly walking the network, the fire begins to spread until everything is on fire. 
 
-### Todo
--Finish message queue.
--Fix configuration file reading to accept node location values larger than a single digit.
-
 #### Workflow
 A. Pedregon and J. Lusby both worked together to structure and design the project.<br>
 A. Pedregon focused on thread functionality and messaging between nodes.<br>
