@@ -7,8 +7,6 @@ package Project4;
  * @version 1.0
  */
 import javafx.geometry.Point2D;
-import javafx.scene.text.Text;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -17,20 +15,28 @@ import java.util.*;
 public class Controller {
     private int fireCount = 0;
     private int stationCount = 0;
+    //Lists to hold nodes and their edges connecting them 
     public static ArrayList<Node> sensors = new ArrayList<>();
     public static ArrayList<Edge> edges = new ArrayList<>();
+    
+    //Hash tables to store nodes and agents 
     public Hashtable<Point2D, Node> nodes = new Hashtable();
     public Hashtable<Point2D, Agent> agents = new Hashtable();
 
+    //Hash table to nodes and their respective thread
     Hashtable<Node, Thread> nodeThreads = new Hashtable();
     Node station = null;
     static GraphDisplay graphDisplay;
 
+    /**
+     * Constructor for the Controller
+     * @param gd : display
+     */
     public Controller(GraphDisplay gd){
         this.graphDisplay = gd;
         gd.nodeHashtable = nodes;
-
     }
+    
     /**
      * Reads in the graph configuration file, parses the information of each line to either
      * create a new node, create an edge between nodes, set the fire location, or set the
@@ -38,7 +44,7 @@ public class Controller {
      * @throws Exception : if file not found
      */
     public void readGraph() throws Exception{
-        File file = new File("src/Project4/MediumGraph.txt");
+        File file = new File("src/Project4/sample.txt");
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st;
 
@@ -92,6 +98,9 @@ public class Controller {
 
     }
 
+    /**
+     * Starts the node threads 
+     */
     public void startThreads(){
 
         mapWeightsToStation(0, station);
@@ -101,9 +110,10 @@ public class Controller {
     }
 
     /**
-     *
-     * @param weight
-     * @param currentNode
+     *  Maps the weight or distance from current node to the station.
+     *  Throws and exception if the graph does not contain a station node.
+     * @param weight : distance from station
+     * @param currentNode : node to map
      */
     private void mapWeightsToStation(int weight, Node currentNode){
         if(currentNode == null){
@@ -118,8 +128,8 @@ public class Controller {
     }
 
     /**
-     *
-     * @param stationLocation
+     * Sets the station node location
+     * @param stationLocation : coordinates of the station node
      */
     private void setNodeAsStation(Point2D stationLocation) {
         nodes.get(stationLocation).setStation();
@@ -132,8 +142,8 @@ public class Controller {
 //    }
 
     /**
-     *
-     * @param agentNode
+     * Creates an agent on the node and starts the agent's thread
+     * @param agentNode : current node with agent 
      */
     private void createAgentOnNode(Node agentNode){
         Agent agent = new Agent(agentNode);
@@ -141,12 +151,11 @@ public class Controller {
         Thread agentThread = new Thread(agent);
         agentThread.start();
     }
-
-
+    
     /**
-     *
-     * @param location1
-     * @param location2
+     * Adds an edge between 2 nodes on the graph
+     * @param location1 : starting coordinates of the edge
+     * @param location2 : ending coordinates of the edge
      */
     private void addEdgeToNodes(Point2D location1, Point2D location2) {
         addNodeToTables(location1);
@@ -156,8 +165,8 @@ public class Controller {
     }
 
     /**
-     *
-     * @param location
+     * Adds the node to the nodeTables
+     * @param location : coordinate of the node
      */
     private void addNodeToTables(Point2D location) {
         if (nodes.get(location) == null) {
@@ -168,8 +177,10 @@ public class Controller {
     }
 
     /**
-     *
-     * @param node
+     * Checks if node is in the ThreadTable.
+     * If thread is not in the ThreadTable, a new thread is created and 
+     * added to the hash table.
+     * @param node : node to check
      */
     private void addThreadToTable(Node node) {
         if (nodeThreads.get(node) == null){
@@ -178,8 +189,12 @@ public class Controller {
         }
     }
 
+    /**
+     * Creates a new node location
+     * @param location : coordinate of node 
+     * @return
+     */
     private Node createNode(Point2D location){
-
         return new Node((int)location.getX(), (int)location.getY());
     }
 
