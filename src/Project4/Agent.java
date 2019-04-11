@@ -29,10 +29,18 @@ public class Agent implements Runnable, Cloneable{
         this.cloned = cloned;
     }
 
+    /**
+     * Checks if this agent is a clone
+     * @return true if agent is a clone, false otherwise
+     */
     public synchronized boolean isAClone() {
         return isAClone;
     }
 
+    /**
+     * Sets this ages as a clone
+     * @param AClone
+     */
     public synchronized void setAsClone(boolean AClone) {
         isAClone = AClone;
     }
@@ -52,13 +60,12 @@ public class Agent implements Runnable, Cloneable{
         this.ID = number;
         this.reported = false;
         Point2D point = new Point2D(newNode.getX(), newNode.getY());
-
         agents.put(point, this);
-
-        //known error: if another node is created on the station, it's not registered in the log again
-        //node.addMessage("new Agent " + ID + " created at " + node.getX() + ", " + node.getY());
     }
 
+    /**
+     * process agent's action to clone or move along the graph
+     */
     public void run(){
         while(true) {
             try {
@@ -76,6 +83,10 @@ public class Agent implements Runnable, Cloneable{
         }
     }
 
+    /**
+     * Clones a new agent on this node and starts it's thread
+     * @param node : location of this node
+     */
     public synchronized void cloneOn(Node node)
     {
         Agent newAgent = new Agent(node);
@@ -83,18 +94,26 @@ public class Agent implements Runnable, Cloneable{
         newAgent.setAsClone(true);
         Thread agentThread = new Thread(newAgent);
         agentThread.start();
-
     }
 
+    /**
+     * Checks which neighbor to clone a new agent
+     * by looping through this nodes neighbors
+     * @param node : current node to check
+     */
     public synchronized void cloneAgent(Node node){
-
         for(Node neighbor : node.getNeighbors()){
-            if(!neighbor.getState().equals("fire") && neighbor.getAgent() == null) {
+            if(!neighbor.getState().equals("fire") && !neighbor.getState().equals("grey")
+                    && neighbor.getAgent() == null) {
                 cloneOn(neighbor);
             }
         }
     }
 
+    /**
+     * puts message into the blocking queue
+     * @param message
+     */
     synchronized public void addMessage(String message) {
         try {
             queue.put(message);
@@ -104,11 +123,21 @@ public class Agent implements Runnable, Cloneable{
         }
     }
 
-    // Getters
+    /**
+     * Get this node
+     */
     public Node getNode(){
         return node;
     }
-    // Setters
+
+    /**
+     * Get this agent ID
+     */
+    public String getID() {
+        return ID;
+    }
+
+    //setters
     synchronized void setNode(Node newNode){
         this.node = newNode;
     }
@@ -117,7 +146,4 @@ public class Agent implements Runnable, Cloneable{
         fireFound = true;
     }
 
-    public String getID() {
-        return ID;
-    }
 }
