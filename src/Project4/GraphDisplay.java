@@ -203,7 +203,7 @@ public class GraphDisplay extends Application{
             }
 
             if (node.getState().equals("grey")){
-                nodeList.get(node).setFill(Color.GREY);
+                nodeList.get(node).setFill(Color.RED);
             }
             else if (node.getState().equals("fire")){
                 nodeList.get(node).setFill(Color.RED);
