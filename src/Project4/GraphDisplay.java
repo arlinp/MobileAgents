@@ -219,6 +219,12 @@ public class GraphDisplay extends Application{
             }
         }
     }
+
+    /**
+     * Entry point for program, sets up the stage
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception{
         launch(args);
     }
