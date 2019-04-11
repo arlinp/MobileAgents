@@ -39,10 +39,10 @@ public class Controller {
      * @throws Exception : if file not found
      */
     public void readGraph() throws Exception{
-        File file = new File("src/Project4/MediumGraph.txt");
-        BufferedReader br = new BufferedReader(new FileReader(file));
+        InputStream in = getClass().getResourceAsStream("MediumGraph.txt");
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String st;
-
+        
         //Loop through each line of the input file
         while((st = br.readLine()) != null){
 
