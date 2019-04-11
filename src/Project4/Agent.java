@@ -7,25 +7,35 @@ package Project4;
  * @version 1.0
  */
 import javafx.geometry.Point2D;
-import javafx.scene.text.Text;
-
-import java.awt.*;
 import java.util.Hashtable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Agent implements Runnable, Cloneable{
-    public boolean fireFound = false;
     private Node node;
-    private Boolean running = true;
-    private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
-    //using ID for test
     private String ID;
-    private String ChildID;
-    private GraphDisplay display;
-    public static Text log;
+    private boolean isAClone = false;
+    private boolean cloned = false;
+    private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+    public Boolean reported;
+    public boolean fireFound = false;
     public Hashtable<Point2D, Agent> agents = new Hashtable();
 
+    public synchronized boolean isCloned() {
+        return cloned;
+    }
+
+    public synchronized void setCloned(boolean cloned) {
+        this.cloned = cloned;
+    }
+
+    public synchronized boolean isAClone() {
+        return isAClone;
+    }
+
+    public synchronized void setAsClone(boolean AClone) {
+        isAClone = AClone;
+    }
 
     /**
      * Makes a new agent,
@@ -40,121 +50,74 @@ public class Agent implements Runnable, Cloneable{
         String number = Integer.toString(newNode.getX());
         number += Integer.toString(newNode.getY());
         this.ID = number;
+        this.reported = false;
         Point2D point = new Point2D(newNode.getX(), newNode.getY());
+
         agents.put(point, this);
+
+        //known error: if another node is created on the station, it's not registered in the log again
+        //node.addMessage("new Agent " + ID + " created at " + node.getX() + ", " + node.getY());
     }
 
     public void run(){
-        while(!Thread.interrupted()) {
-
-            processMessageQueue();
-
-
-            System.out.println("Agent Thread: " + this);
-
-            if(!node.getState().equals("blue")){
-                fireFound = true;
-                addMessage("fire");
-            }
-            else{
-                if(!queue.contains("moveAgent")) {
-                    addMessage("moveAgent");
-                }
-            }
-
-
+        while(true) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException iE) {
                 System.out.println("ZZzzzzzz interuption: " + iE);
             }
-        }
-    }
+            if ( (node.getState().equals("fire") || node.getState().equals("yellow") ) && !cloned) {
+                cloneAgent(node);
+                cloned = true;
 
-    synchronized private void processMessageQueue() {
-        if (!queue.isEmpty()) {
-            String[] message = queue.remove().split(" ");
-
-            if(message[0].equals("moveAgent")){
+            } else if (node.getState().equals("blue") && !isAClone()) {
                 node.moveAgent();
             }
-
-            if(message[0].equals("fire")){
-                    fireFound = true;
-                    System.out.println("FIRE FOUND GOTTA CLONE");
-
-                    for(Node neighbor : node.getNeighbors()){
-                        if(!neighbor.getState().equals("fire")){
-                            cloneOn(neighbor);
-                        }
-                    }
-            }
         }
     }
 
-    synchronized public void cloneOn(Node node)
+    public synchronized void cloneOn(Node node)
     {
         Agent newAgent = new Agent(node);
         node.setAgent(newAgent);
+        newAgent.setAsClone(true);
+        Thread agentThread = new Thread(newAgent);
+        agentThread.start();
+
     }
 
-    synchronized public void cloneAgent(Node node){
+    public synchronized void cloneAgent(Node node){
+
         for(Node neighbor : node.getNeighbors()){
-            cloneOn(neighbor);
+            if(!neighbor.getState().equals("fire") && neighbor.getAgent() == null) {
+                cloneOn(neighbor);
+            }
         }
-
     }
-    
+
     synchronized public void addMessage(String message) {
-        queue.add(message);
-    }
+        try {
+            queue.put(message);
+        }
+        catch (InterruptedException e){
 
-    //Clones the agent
-//    public Agent clone() throws CloneNotSupportedException
-//    {
-//        char[] letter = this.ID.toCharArray();
-//        char lastLetter = letter[letter.length-1];
-//        char newChar = lastLetter++;
-//        ChildID = this.ID += newChar;
-//        Agent newAgent = (Agent) super.clone();
-//        newAgent.setID("AB");
-//        System.out.println("NEW NODE CREATED");
-//        return newAgent;
-//
-//
-//    }
+        }
+    }
 
     // Getters
     public Node getNode(){
-        return this.node;
+        return node;
     }
     // Setters
-    synchronized public Boolean setNode(Node newNode){
+    synchronized void setNode(Node newNode){
         this.node = newNode;
-        return (this.node.equals(newNode))?true:false;
-    }
-    @Override
-    synchronized public String toString(){
-        return String.format("AgentID: "+ ID +" is on node: "+ node);
     }
 
     public void foundFire(){
         fireFound = true;
     }
 
-    public String getChildID() {
-        return ChildID;
-    }
-
-    public void setChildID(String ID) {
-        this.ChildID = ID;
-    }
-
     public String getID() {
-        return ChildID;
-    }
-
-    public void setID(String ID) {
-        this.ID = ID;
+        return ID;
     }
 }
