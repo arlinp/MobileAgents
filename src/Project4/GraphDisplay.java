@@ -20,20 +20,19 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.*;
-
 import java.util.*;
 
-public class GraphDisplay extends Application {
-    public Pane display;
-    public FlowPane stationLog;
+public class GraphDisplay extends Application{
+    public  Pane display;
+    public  FlowPane stationLog;
+    public ArrayList<Agent> agents;
     public ArrayList<Node> nodes;
-    public int displayWidth = 800;
-    public int displayHeight = 600;
+    public static int displayWidth = 800;
+    public static int displayHeight = 600;
     public Hashtable<Point2D, Node> nodeHashtable = new Hashtable();
     private Hashtable<Node, Shape> nodeList = new Hashtable<>();
-    private Hashtable<Agent, Circle> agentList = new Hashtable<>();
+    private Hashtable<Agent, Shape> agentList = new Hashtable<>();
     private Hashtable<Node, Agent> nodesToAgents = new Hashtable<>();
-    private Text newAgent;
 
     /**
      * Constructor for the graph graph.
@@ -81,13 +80,14 @@ public class GraphDisplay extends Application {
      * @param x ; x coordinate of the new node
      * @param y : y coordinate of the nwe node
      */
-    public void drawAgent(int x, int y, Agent agent){
+    public void drawAgent(int x, int y, Agent agent, Node node){
 
         Circle circle = new Circle(14, null );
-        circle.relocate((x*80)+80, (y*80)+0 );
+        circle.relocate((x*80)+85, (y*80)+5 );
         circle.setStroke(Color.LIMEGREEN);
         circle.setStrokeWidth(4);
         agentList.put(agent, circle);
+        nodesToAgents.put(node, agent);
         display.getChildren().add(circle);
     }
 
@@ -107,12 +107,12 @@ public class GraphDisplay extends Application {
 
     /**
      * Creates the message to be displayed on the base station log
-     * @param name : unique Agent Id name
-     * @param node : node the agent was created on
+     * @param  name : unique Agent Id name
+     * @param  node : node the agent was created on
      */
     public void createMessage(String name, Node node){
-        Text newLog = new Text("Agent: " + name +
-                " Created at (" + node.getX() + "," + node.getY() + ")");
+        Text newLog = new Text("\tAgent: " + name +
+                " Created at (" + node.getX() + "," + node.getY() + ")\t");
         newLog.setStroke(Color.WHITE);
         stationLog.getChildren().add(newLog);
     }
@@ -147,6 +147,7 @@ public class GraphDisplay extends Application {
         for(Node node : nodes){
             if(node.getAgent() != null){
                 nodeWithAgent = node;
+                nodesToAgents.put(node, node.getAgent());
             }
 
             if(node.isStation()){
@@ -166,7 +167,7 @@ public class GraphDisplay extends Application {
             }
         }
         if(nodeWithAgent != null) {
-            drawAgent(nodeWithAgent.getX(), nodeWithAgent.getY(), nodeWithAgent.getAgent());
+            drawAgent(nodeWithAgent.getX(), nodeWithAgent.getY(), nodeWithAgent.getAgent(), nodeWithAgent);
         }
     }
 
@@ -180,45 +181,44 @@ public class GraphDisplay extends Application {
      */
     public void update(){
         nodes = new ArrayList<>(nodeHashtable.values());
-
+        agents = new ArrayList<>(nodesToAgents.values());
+        for(Agent agent : agents) {
+            if (!agent.reported) {
+                createMessage(agent.getID(), agent.getNode());
+                agent.reported = true;
+            }
+        }
         for(Node node : nodes){
             if(node.getAgent() != null && !agentList.isEmpty()) {
-                if(agentList.get(node.getAgent()) != null) {
-                    agentList.get(node.getAgent()).relocate((node.getX() * 80) + 85, (node.getY() * 80) + 5);
+                Agent agent = node.getAgent();
+
+                if(agentList.containsKey(agent)) {
+                    agentList.get(agent).relocate((node.getX() * 80) + 85, (node.getY() * 80) + 5);
                 }
 
                 else{
-                    drawAgent(node.getX(), node.getY(), node.getAgent());
-                    agentList.get(node.getAgent()).relocate((node.getX() * 80) + 85, (node.getY() * 80) + 5);
-                    if(node.getState().equals("fire")){
-                        agentList.get(node.getAgent()).setFill(Color.GREY);
-                    }
+                    drawAgent(node.getX(), node.getY(), agent, node);
+                    agentList.get(agent).relocate((node.getX() * 80) + 85, (node.getY() * 80) + 5);
                 }
             }
 
-            if(node.isStation()){
-                nodeList.get(node).setFill(Color.GREEN);
+            if (node.getState().equals("grey")){
+                nodeList.get(node).setFill(Color.GREY);
             }
-
-            else if(node.getState().equals("blue") && !node.isStation()){
-                nodeList.get(node).setFill(Color.BLUE);
-            }
-
             else if (node.getState().equals("fire")){
                 nodeList.get(node).setFill(Color.RED);
             }
-
+            else if(node.getState().equals("blue") && !node.isStation()){
+                nodeList.get(node).setFill(Color.BLUE);
+            }
             else if (node.getState().equals("yellow")){
                 nodeList.get(node).setFill(Color.YELLOW);
             }
+            else if(node.isStation()){
+                nodeList.get(node).setFill(Color.GREEN);
+            }
         }
     }
-
-    /**
-     * Sets up the scene and launches the application
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception{
         launch(args);
     }
@@ -226,19 +226,15 @@ public class GraphDisplay extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Mobile Agents");
-
-        //Create the root node for the scene
         GraphDisplay graph = new GraphDisplay();
         Group root = new Group(graph.createGraph());
-
-        //Set the scene
         Scene scene = new Scene(root, graph.displayWidth, graph.displayHeight);
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        //Read input file and configure, set up GUI, and start threads
         Controller controller = new Controller(graph);
         controller.readGraph();
+
         graph.setUp();
         graph.start();
         controller.startThreads();
