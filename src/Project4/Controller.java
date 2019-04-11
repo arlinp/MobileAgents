@@ -7,11 +7,7 @@ package Project4;
  * @version 1.0
  */
 import javafx.geometry.Point2D;
-import javafx.scene.text.Text;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 
 public class Controller {
@@ -21,17 +17,19 @@ public class Controller {
     public static ArrayList<Edge> edges = new ArrayList<>();
     public Hashtable<Point2D, Node> nodes = new Hashtable();
     public ArrayList<String> messages = new ArrayList<>();
-
     Hashtable<Node, Thread> nodeThreads = new Hashtable();
     Node station = null;
     static GraphDisplay graphDisplay;
 
+    /**
+     * Constructor for the controller
+     * @param gd
+     */
     public Controller(GraphDisplay gd){
         this.graphDisplay = gd;
         gd.nodeHashtable = nodes;
-        //gd.messageLog =  messages;
-
     }
+    
     /**
      * Reads in the graph configuration file, parses the information of each line to either
      * create a new node, create an edge between nodes, set the fire location, or set the
@@ -42,7 +40,7 @@ public class Controller {
         InputStream in = getClass().getResourceAsStream("MediumGraph.txt");
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String st;
-        
+
         //Loop through each line of the input file
         while((st = br.readLine()) != null){
 
@@ -90,23 +88,19 @@ public class Controller {
         //map node weights and start node threads
     }
 
+    /**
+     * Iterates through nodeThreads table and starts each thread
+     */
     public void startThreads(){
-
         mapWeightsToStation(0, station);
         for (Node node: nodeThreads.keySet()){
             nodeThreads.get(node).start();
         }
     }
-
-    public void addToLog(String[] message){
-        String finalMessage = "";
-        for(int i = 0; i < message.length; i++) {
-            finalMessage += message[i];
-        }
-    }
-
+    
     /**
-     *
+     * Maps the weight of each node to the station.  
+     * Weight is based of distance from the station
      * @param weight
      * @param currentNode
      */
@@ -121,6 +115,7 @@ public class Controller {
             }
         }
     }
+    
     /**
      * Sets the station node location
      * @param stationLocation : coordinates of the station node
